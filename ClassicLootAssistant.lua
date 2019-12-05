@@ -12,6 +12,29 @@ CLA_SHOW_LOOT = true
 CLA_NUMBER = 0
 RAID_LOOT_ARRAY = {}
 
+-- local frame = CreateFrame("Frame")
+-- frame:RegisterEvent("CHAT_MSG_LOOT")
+-- frame:SetScript("OnEvent", function(self, event, ...)
+--     local text, playerName, playerName2 
+-- end)
+
+local function filter(self,event,message,sender,...)
+    TEMP_OBJ = {}
+    -- TODO plural catches others loot
+    -- if string.find(message, "receives loot") ~= nil then
+    if string.find(message, "receive loot") ~= nil then
+        x = 1
+        for i in string.gmatch(message, "%S+") do
+            TEMP_OBJ[x] = i
+            x = x + 1
+        end
+    end
+    print(event, "event")
+    print(RAID_LOOT_ARRAY[1])
+    return false
+  end
+  ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", filter)
+
 function SlashCmdList.CLA(command)
     if CLA_DEBUG then
         print('The /cla command was issued with parameter ' .. command)
@@ -53,9 +76,32 @@ function CLA_OnEvent(self, event, ...)
         if CLA_DEBUG then
             print('The CLA prefix was registered')
         end
+    -- elseif event == "CHANNEL_ROSTER_UPDATE" then
+
+    --     print(event)
+    --     print("CHANNEL_ROSTER_UPDATE")
+    -- elseif event == "CHAT_MSG_RESTRICTED" then
+
+    --     print(event)
+    --     print("CHAT_MSG_RESTRICTED")
+    elseif event == "LOOT_ITEM_SELF" then
+
+        print(event)
+        print("LOOT_ITEM_SELF")
+
+    -- elseif event == "CHAT_MSG_LOOT" then
+    
+    --     local lootstring, _, _, _, player = ...
+    --     local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
+    --     local itemString = string.match(itemLink, "item[%-?%d:]+")
+    --     local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemString)
+ 
+    --     if UnitName("player") == player then 
+    --         print(itemLink, itemString, "itemString")
+    --     end
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, text, channel, sender, target = ...
-
+        -- print(prefix, text, channel, sender, target)
         if prefix ~= "CLA" then return end
 
         if text == "DISCOVER" then
@@ -78,7 +124,7 @@ function CLA_OnEvent(self, event, ...)
 
         -- At this point it must be a name:destGuid message.
         if CLA_DEBUG then
-            print("A loot event was detected: " .. text)
+            print("A loot event was detected: " .. sender, target)
         end
 
         if CLA_LOOTLIST[text] ~= nil then
@@ -106,34 +152,43 @@ function CLA_OnEvent(self, event, ...)
                 end
             end)
         end
-    elseif event == "PARTY_MEMBERS_CHANGED" then
-        print(event)
-        print("PARTY_MEMBERS_CHANGED")
+
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local numGroupMembers = GetNumGroupMembers();
         local time, eventName, _, _, _, _, _, destGuid, destName = CombatLogGetCurrentEventInfo()
-        for i=1,numGroupMembers,1 do
-            local memberName, _, _, _, _, _, _, _, _, _, _ = GetRaidRosterInfo(i)
-            RAID_LOOT_ARRAY[i] = memberName
-          end
-        
-          print("RAID_LOOT_ARRAY:", dump(RAID_LOOT_ARRAY))
 
-
+        -- We shouldn't be assigning the table everytime a NPC dies but I can't get the RAID_ROSTER_UPDATE event to trigger
+        -- If the table and number of players in raid dont match we need to redraw the table.
+        local numGroupMembers = GetNumGroupMembers();
+        if table.getn(RAID_LOOT_ARRAY) ~= numGroupMembers then
+            for i=1,numGroupMembers,1 do
+                local memberName, _, _, _, _, _, _, _, _, _, _ = GetRaidRosterInfo(i)
+                RAID_LOOT_ARRAY[i] = memberName
+            end
+        end
+        -- Track NPC deaths and increase CLA_NUMBER which keeps track of where we are in loot rotation
         if eventName == "UNIT_DIED" then
             CLA_NUMBER = CLA_NUMBER + 1
-            print("CLA_NUMBER", CLA_NUMBER)
-            print(numGroupMembers)
-
-            if CLA_DEBUG then
-                print("A UNIT_DIED event was detected on mob " .. destName .. " with GUID " .. destGuid)
+            -- To rotate around the loot table we need to reset the count to the number of players in the loot table/raid.
+            -- If the CLA_NUMBER is one more than total then the loot falls back on addon player
+            if numGroupMembers < CLA_NUMBER then
+                CLA_NUMBER = 1
             end
 
             cla_callback(1, function()
+                local playerName = UnitName("player");
                 local hasLoot, _ = CanLootUnit(destGuid)
 
                 if CLA_DEBUG then
                     if hasLoot then
+                        -- Set the addon player as index 1 in the table and reset the unit death count to match to keys
+                        -- if playerName == RAID_LOOT_ARRAY[1] then
+                        --     CLA_NUMBER = 1
+                        -- end
+                        print(numGroupMembers < CLA_NUMBER, "numGroupMembers")
+                        print(CLA_NUMBER)
+
+                        print("RAID_LOOT_ARRAY:", dump(RAID_LOOT_ARRAY))
+
                         print("It has been detected that you can loot the " .. destName)
                     else
                         print("It has been detected that you can not loot the " .. destName)
