@@ -99,18 +99,55 @@ RAID_LOOT_ARRAY = {}
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("CHAT_MSG_LOOT")
+frame:RegisterEvent("CHAT_MSG_CURRENCY")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "CHAT_MSG_LOOT" then
-        local lootstring, _, _, _, player = ...
+        local lootstring, player1, _, channelName, player2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons = ...
         local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
         local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemLink)
-        print(lootstring, player, "CHAT_MSG_LOOT")
+        print(event)
+        print(lootstring, "1 lootstring")
+        print(player1, "2 player1")
+        print(channelName, "3 channelName")
+        print(player2, "4 player2")
+        print(specialFlags, "5 specialFlags")
+        print(zoneChannelID, "6 zoneChannelID")
+        print(channelIndex, "7 channelIndex")
+        print(channelBaseName, "8 channelBaseName")
+        print(unused, "9 unused")
+        print(lineID, "10 lineID")
+        print(guid, "11 guid")
+        print(bnSenderID, "12 bnSenderID")
+        print(isMobile, "13 isMobile")
+        print(isSubtitle, "14 isSubtitle")
+        print(hideSenderInLetterbox, "16 hideSenderInLetterbox")
+        print(supressRaidIcons, "17 supressRaidIcons")
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local _,arg1,_,_,player,_,_,_,target = CombatLogGetCurrentEventInfo();
-        if arg1 == "PARTY_KILL" then
-            print(player, target, itemLink, "COMBAT_LOG_EVENT_UNFILTERED")
+        local timestamp,eventSubType,_,sourceGuid,player,_,_,targetGuid,targetName = CombatLogGetCurrentEventInfo();
+        if eventSubType == "PARTY_KILL" then
+            print(event)
+            print(timestamp, sourceGuid, player, targetGuid, targetName, "COMBAT_LOG_EVENT_UNFILTERED")
         end
+    elseif event == "CHAT_MSG_CURRENCY" then
+        print(event)
+        local lootstring, player1, _, channelName, player2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons = ...
+        print(lootstring, "1 lootstring")
+        print(player1, "2 player1")
+        print(channelName, "3 channelName")
+        print(player2, "4 player2")
+        print(specialFlags, "5 specialFlags")
+        print(zoneChannelID, "6 zoneChannelID")
+        print(channelIndex, "7 channelIndex")
+        print(channelBaseName, "8 channelBaseName")
+        print(unused, "9 unused")
+        print(lineID, "10 lineID")
+        print(guid, "11 guid")
+        print(bnSenderID, "12 bnSenderID")
+        print(isMobile, "13 isMobile")
+        print(isSubtitle, "14 isSubtitle")
+        print(hideSenderInLetterbox, "16 hideSenderInLetterbox")
+        print(supressRaidIcons, "17 supressRaidIcons")
     end
 end)
 
