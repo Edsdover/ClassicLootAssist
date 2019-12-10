@@ -12,28 +12,77 @@ CLA_SHOW_LOOT = true
 CLA_NUMBER = 0
 RAID_LOOT_ARRAY = {}
 
+--Create the unit button:
+
+
+local text,playerName,playerName2
+local text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("CHAT_MSG_LOOT")
+frame:SetScript("OnEvent", function(self, event, ...)
+    -- text, playerName, _, _, playerName2 = ...
+    text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons = ...
+    print("CHAT_MSG_LOOT")
+    -- name, realm = UnitName("targettarget")
+    hooksecurefunc("CastSpellByName", print);
+    targetPlayerFunction(playerName2)
+    print(playerName2, "playerName")
+    -- print(name, realm, "UnitName")
+end)
+
+function targetPlayerFunction(name)
+    local f = CreateFrame("Button", "wille480PlayerFrame", UIParent, "SecureUnitButtonTemplate")
+    -- Tell it which unit to represent (in this case "player":
+    f:SetAttribute("unit", name)
+    
+    -- Tell the game to "look after it"
+    RegisterUnitWatch(f) 
+    
+    -- Tell it to show the unit's vehicle when the unit is in one:
+    f:SetAttribute("toggleForVehicle", true)
+    
+    -- Give it the standard click actions:
+    f:RegisterForClicks("AnyUp")
+    f:SetAttribute("*type1", "target") -- Target unit on left click
+    f:SetAttribute("*type2", "togglemenu") -- Toggle units menu on left click
+    f:SetAttribute("*type3", "assist") -- On middle click, target the target of the clicked unit
+    
+    -- Make it visible for testing purposes:
+    f:SetPoint("CENTER")
+    f:SetSize(100, 100)
+    f:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+    f:SetBackdropColor(0.3, 0.3, 0.3, 0.6)
+    f:SetScript("OnLoad", function() f:Click("*type1" ) end)
+end
+
+
+-- local text,playerName,playerName2
 -- local frame = CreateFrame("Frame")
 -- frame:RegisterEvent("CHAT_MSG_LOOT")
 -- frame:SetScript("OnEvent", function(self, event, ...)
---     local text, playerName, playerName2 
+--     if event == "CHAT_MSG_LOOT" then
+--         print("CHAT_MSG_LOOT")
+--         text, playerName, _, _, playerName2 = ...
+--         print(playerName, playerName2, "playerName")
+-- 	end
 -- end)
 
-local function filter(self,event,message,sender,...)
-    TEMP_OBJ = {}
-    -- TODO plural catches others loot
-    -- if string.find(message, "receives loot") ~= nil then
-    if string.find(message, "receive loot") ~= nil then
-        x = 1
-        for i in string.gmatch(message, "%S+") do
-            TEMP_OBJ[x] = i
-            x = x + 1
-        end
-    end
-    print(event, "event")
-    print(RAID_LOOT_ARRAY[1])
-    return false
-  end
-  ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", filter)
+-- local function filter(self,event,message,sender,...)
+--     TEMP_OBJ = {}
+--     -- TODO plural catches others loot
+--     -- if string.find(message, "receives loot") ~= nil then
+--     if string.find(message, "receive loot") ~= nil then
+--         x = 1
+--         for i in string.gmatch(message, "%S+") do
+--             TEMP_OBJ[x] = i
+--             x = x + 1
+--         end
+--     end
+--     print(event, "event")
+--     print(RAID_LOOT_ARRAY[1])
+--     return false
+--   end
+--   ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", filter)
 
 function SlashCmdList.CLA(command)
     if CLA_DEBUG then
@@ -184,7 +233,8 @@ function CLA_OnEvent(self, event, ...)
                         -- if playerName == RAID_LOOT_ARRAY[1] then
                         --     CLA_NUMBER = 1
                         -- end
-                        print(numGroupMembers < CLA_NUMBER, "numGroupMembers")
+                        print(destGuid, destName, "numGroupMembers")
+                        -- name, realm = UnitName(Creature-0-3769-0-26-1165-000034AB23)
                         print(CLA_NUMBER)
 
                         print("RAID_LOOT_ARRAY:", dump(RAID_LOOT_ARRAY))
