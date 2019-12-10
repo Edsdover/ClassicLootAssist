@@ -12,8 +12,49 @@ CLA_SHOW_LOOT = true
 CLA_NUMBER = 0
 RAID_LOOT_ARRAY = {}
 
---Create the unit button:
-
+------------------------------------------------------------------------------------
+-- Larant joins the party. 
+-- Stumble Young Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Young Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Larant receives loot: [Wendigo Mane]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Wendigo Mane]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Wendigo Mane]. 
+-- Larant receives loot: [Worn Large Shield]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Worn Large Shield]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Worn Large Shield]. 
+-- It has been detected that you can loot the Young Wendigo 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+-- Stumble Young Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Young Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can not loot the Young Wendigo 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can loot the Wendigo 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can not loot the Wendigo 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can loot the Wendigo 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+-- Your share of the loot is 3 Copper. 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can loot the Wendigo 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+-- Larant receives loot: [Wendigo Mane]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Wendigo Mane]. Larant CHAT_MSG_LOOT 
+-- Larant receives loot: [Wendigo Mane]. 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- It has been detected that you can loot the Wendigo 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- Stumble Wendigo COMBAT_LOG_EVENT_UNFILTERED 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+-- It has been detected that you can loot the Wendigo 
+-- A loot event was detected: Stumble-Thunderfury Stumble 
+------------------------------------------------------------------------------------
 
 -- local text,playerName,playerName2
 -- local text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons
@@ -67,32 +108,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
         print(lootstring, player, "CHAT_MSG_LOOT")
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
         local _,arg1,_,_,player,_,_,_,target = CombatLogGetCurrentEventInfo();
-        if arg1 == "PARTY_KILL" then  -- or can use UNIT_DIED. Same args
-            print(player, target, "COMBAT_LOG_EVENT_UNFILTERED")
+        if arg1 == "PARTY_KILL" then
+            print(player, target, itemLink, "COMBAT_LOG_EVENT_UNFILTERED")
         end
     end
 end)
 
--- local frame = CreateFrame("Frame")
--- frame:RegisterEvent("CHAT_MSG_LOOT")
--- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
--- frame:SetScript("OnEvent", function(self, event, ...)
-	-- if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		-- local _,arg1,_,_,player,_,_,_,target = CombatLogGetCurrentEventInfo();
-		-- if arg1 == "PARTY_KILL" then  -- or can use UNIT_DIED. Same args
-			-- player = person in party that killed
-			-- target = what they killed
-            -- pass variables outside the scope for use elsewhere
-            -- print(player, target, "AMAZING")
-		-- end
-	-- elseif event == "CHAT_MSG_LOOT" then
-		-- local lootstring, _, _, _, player = ...
-		-- local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
-		-- local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemLink)
-        -- print(quality, class, "AMAZING")
-		-- do whatever with information above
-	-- end
--- end
 
 function SlashCmdList.CLA(command)
     if CLA_DEBUG then
