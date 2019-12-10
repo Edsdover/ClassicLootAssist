@@ -15,78 +15,88 @@ RAID_LOOT_ARRAY = {}
 --Create the unit button:
 
 
-local text,playerName,playerName2
-local text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("CHAT_MSG_LOOT")
-frame:SetScript("OnEvent", function(self, event, ...)
-    -- text, playerName, _, _, playerName2 = ...
-    text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons = ...
-    print("CHAT_MSG_LOOT")
-    -- name, realm = UnitName("targettarget")
-    hooksecurefunc("CastSpellByName", print);
-    targetPlayerFunction(playerName2)
-    print(playerName2, "playerName")
-    -- print(name, realm, "UnitName")
-end)
-
-function targetPlayerFunction(name)
-    local f = CreateFrame("Button", "wille480PlayerFrame", UIParent, "SecureUnitButtonTemplate")
-    -- Tell it which unit to represent (in this case "player":
-    f:SetAttribute("unit", name)
-    
-    -- Tell the game to "look after it"
-    RegisterUnitWatch(f) 
-    
-    -- Tell it to show the unit's vehicle when the unit is in one:
-    f:SetAttribute("toggleForVehicle", true)
-    
-    -- Give it the standard click actions:
-    f:RegisterForClicks("AnyUp")
-    f:SetAttribute("*type1", "target") -- Target unit on left click
-    f:SetAttribute("*type2", "togglemenu") -- Toggle units menu on left click
-    f:SetAttribute("*type3", "assist") -- On middle click, target the target of the clicked unit
-    
-    -- Make it visible for testing purposes:
-    f:SetPoint("CENTER")
-    f:SetSize(100, 100)
-    f:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
-    f:SetBackdropColor(0.3, 0.3, 0.3, 0.6)
-    f:SetScript("OnLoad", function() f:Click("*type1" ) end)
-end
-
-
 -- local text,playerName,playerName2
+-- local text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons
 -- local frame = CreateFrame("Frame")
 -- frame:RegisterEvent("CHAT_MSG_LOOT")
 -- frame:SetScript("OnEvent", function(self, event, ...)
---     if event == "CHAT_MSG_LOOT" then
---         print("CHAT_MSG_LOOT")
---         text, playerName, _, _, playerName2 = ...
---         print(playerName, playerName2, "playerName")
--- 	end
+--     -- text, playerName, _, _, playerName2 = ...
+--     text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons = ...
+--     print("CHAT_MSG_LOOT")
+--     -- name, realm = UnitName("targettarget")
+--     hooksecurefunc("CastSpellByName", print);
+--     targetPlayerFunction(playerName2)
+--     print(playerName2, "playerName")
+--     -- print(name, realm, "UnitName")
 -- end)
 
--- local function filter(self,event,message,sender,...)
---     TEMP_OBJ = {}
---     -- TODO plural catches others loot
---     -- if string.find(message, "receives loot") ~= nil then
---     if string.find(message, "receive loot") ~= nil then
---         x = 1
---         for i in string.gmatch(message, "%S+") do
---             TEMP_OBJ[x] = i
---             x = x + 1
---         end
---     end
---     print(event, "event")
---     print(RAID_LOOT_ARRAY[1])
---     return false
---   end
---   ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", filter)
+-- function targetPlayerFunction(name)
+--     local f = CreateFrame("Button", "wille480PlayerFrame", UIParent, "SecureUnitButtonTemplate")
+--     -- Tell it which unit to represent (in this case "player":
+--     f:SetAttribute("unit", name)
+    
+--     -- Tell the game to "look after it"
+--     RegisterUnitWatch(f) 
+    
+--     -- Tell it to show the unit's vehicle when the unit is in one:
+--     f:SetAttribute("toggleForVehicle", true)
+    
+--     -- Give it the standard click actions:
+--     f:RegisterForClicks("AnyUp")
+--     f:SetAttribute("*type1", "target") -- Target unit on left click
+--     f:SetAttribute("*type2", "togglemenu") -- Toggle units menu on left click
+--     f:SetAttribute("*type3", "assist") -- On middle click, target the target of the clicked unit
+    
+--     -- Make it visible for testing purposes:
+--     f:SetPoint("CENTER")
+--     f:SetSize(100, 100)
+--     f:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+--     f:SetBackdropColor(0.3, 0.3, 0.3, 0.6)
+--     f:SetScript("OnLoad", function() f:Click("*type1" ) end)
+-- end
+
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("CHAT_MSG_LOOT")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "CHAT_MSG_LOOT" then
+        local lootstring, _, _, _, player = ...
+        local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
+        local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemLink)
+        print(lootstring, player, "CHAT_MSG_LOOT")
+    elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
+        local _,arg1,_,_,player,_,_,_,target = CombatLogGetCurrentEventInfo();
+        if arg1 == "PARTY_KILL" then  -- or can use UNIT_DIED. Same args
+            print(player, target, "COMBAT_LOG_EVENT_UNFILTERED")
+        end
+    end
+end)
+
+-- local frame = CreateFrame("Frame")
+-- frame:RegisterEvent("CHAT_MSG_LOOT")
+-- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+-- frame:SetScript("OnEvent", function(self, event, ...)
+	-- if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		-- local _,arg1,_,_,player,_,_,_,target = CombatLogGetCurrentEventInfo();
+		-- if arg1 == "PARTY_KILL" then  -- or can use UNIT_DIED. Same args
+			-- player = person in party that killed
+			-- target = what they killed
+            -- pass variables outside the scope for use elsewhere
+            -- print(player, target, "AMAZING")
+		-- end
+	-- elseif event == "CHAT_MSG_LOOT" then
+		-- local lootstring, _, _, _, player = ...
+		-- local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
+		-- local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemLink)
+        -- print(quality, class, "AMAZING")
+		-- do whatever with information above
+	-- end
+-- end
 
 function SlashCmdList.CLA(command)
     if CLA_DEBUG then
-        print('The /cla command was issued with parameter ' .. command)
+        -- print('The /cla command was issued with parameter ' .. command)
     end
 
     if command == "" then
@@ -96,23 +106,23 @@ function SlashCmdList.CLA(command)
     elseif command == "pros" then
         CLA_PrintPlayersWithAddon()
     elseif command == "noobs" then
-        print("The noobs command is not implemented yet")
+        -- print("The noobs command is not implemented yet")
     elseif command == "debug" then
         -- Toggle DEBUG
         if CLA_DEBUG then
             CLA_DEBUG = false
-            print("CLA debug mode has been disabled")
+            -- print("CLA debug mode has been disabled")
         else
             CLA_DEBUG = true
-            print("CLA debug mode has been enabled")
+            -- print("CLA debug mode has been enabled")
         end
 
     elseif command == "loot show" then
         CLA_SHOW_LOOT = true
-        print("CLA loot messages enabled")
+        -- print("CLA loot messages enabled")
     elseif command == "loot hide" then
         CLA_SHOW_LOOT = false
-        print("CLA loot messages disabled")
+        -- print("CLA loot messages disabled")
     else
         print("The command /cla " .. command .. " was not recognized")
     end
@@ -135,8 +145,8 @@ function CLA_OnEvent(self, event, ...)
     --     print("CHAT_MSG_RESTRICTED")
     elseif event == "LOOT_ITEM_SELF" then
 
-        print(event)
-        print("LOOT_ITEM_SELF")
+        -- print(event)
+        -- print("LOOT_ITEM_SELF")
 
     -- elseif event == "CHAT_MSG_LOOT" then
     
@@ -157,7 +167,7 @@ function CLA_OnEvent(self, event, ...)
             C_ChatInfo.SendAddonMessage("CLA", "REPORT", "WHISPER", sender)
 
             if CLA_DEBUG then
-                print("SendAddonMessage just sent a REPORT by whisper to " .. sender)
+                -- print("SendAddonMessage just sent a REPORT by whisper to " .. sender)
             end
 
             return
@@ -233,11 +243,11 @@ function CLA_OnEvent(self, event, ...)
                         -- if playerName == RAID_LOOT_ARRAY[1] then
                         --     CLA_NUMBER = 1
                         -- end
-                        print(destGuid, destName, "numGroupMembers")
+                        -- print(destGuid, destName, "numGroupMembers")
                         -- name, realm = UnitName(Creature-0-3769-0-26-1165-000034AB23)
-                        print(CLA_NUMBER)
+                        -- print(CLA_NUMBER)
 
-                        print("RAID_LOOT_ARRAY:", dump(RAID_LOOT_ARRAY))
+                        -- print("RAID_LOOT_ARRAY:", dump(RAID_LOOT_ARRAY))
 
                         print("It has been detected that you can loot the " .. destName)
                     else
